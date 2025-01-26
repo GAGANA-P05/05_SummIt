@@ -1,0 +1,238 @@
+[
+    {
+        "meeting_id": "M001",
+        "title": "AI Team Weekly Sync",
+        "participants": [
+            "Alice Johnson",
+            "Bob Smith",
+            "Charlie Brown",
+            "Diana Lee"
+        ],
+        "date": "2025-01-20",
+        "duration": "1h 15m",
+        "agenda": [
+            "Review of last week's progress",
+            "Discussion on model accuracy improvements",
+            "Planning for upcoming project deadlines"
+        ],
+        "transcript": [
+            {
+                "timestamp": "00:05:23",
+                "speaker": "Alice Johnson",
+                "text": "Let's start by reviewing last week's tasks. Bob, can you give us a quick update?"
+            },
+            {
+                "timestamp": "00:10:45",
+                "speaker": "Bob Smith",
+                "text": "Sure, the model's accuracy improved by 5% after the latest training dataset update."
+            },
+            {
+                "timestamp": "00:25:10",
+                "speaker": "Charlie Brown",
+                "text": "We need to focus on optimizing the hyperparameters for better efficiency."
+            }
+        ],
+        "action_items": [
+            "Bob to provide a detailed report on model accuracy by Jan 25.",
+            "Charlie to investigate hyperparameter tuning options and present findings in the next meeting.",
+            "Diana to schedule a client review session for February."
+        ]
+    },
+    {
+        "meeting_id": "M002",
+        "title": "Project Kickoff: Alpha Launch",
+        "participants": [
+            "Emily White",
+            "Frank Green",
+            "George Hall",
+            "Helen Black"
+        ],
+        "date": "2025-01-22",
+        "duration": "2h 00m",
+        "agenda": [
+            "Introduction of team members",
+            "Overview of project goals",
+            "Initial task assignments"
+        ],
+        "transcript": [
+            {
+                "timestamp": "00:02:30",
+                "speaker": "Emily White",
+                "text": "Welcome everyone! Let's begin by introducing ourselves."
+            },
+            {
+                "timestamp": "00:15:00",
+                "speaker": "Frank Green",
+                "text": "The project's primary goal is to launch the Alpha version within three months."
+            },
+            {
+                "timestamp": "01:10:45",
+                "speaker": "Helen Black",
+                "text": "I'll take charge of the UI design tasks for this phase."
+            }
+        ],
+        "action_items": [
+            "Frank to draft a project timeline and share with the team by Jan 30.",
+            "Helen to create initial UI mockups by Feb 10.",
+            "George to set up the project repository and development environment by Jan 25."
+        ]
+    },
+    {
+        "meeting_id": "M003",
+        "title": "Marketing Strategy Brainstorm",
+        "participants": [
+            "Irene Cooper",
+            "Jack Wilson",
+            "Karen Young",
+            "Larry King"
+        ],
+        "date": "2025-01-24",
+        "duration": "1h 30m",
+        "agenda": [
+            "Identifying target audiences",
+            "Discussing promotional strategies",
+            "Assigning tasks for social media campaigns"
+        ],
+        "transcript": [
+            {
+                "timestamp": "00:03:45",
+                "speaker": "Irene Cooper",
+                "text": "We need to identify our key demographics for the upcoming campaign."
+            },
+            {
+                "timestamp": "00:20:15",
+                "speaker": "Jack Wilson",
+                "text": "I suggest focusing on younger professionals aged 25-35, as they align with our product's value."
+            },
+            {
+                "timestamp": "00:50:10",
+                "speaker": "Karen Young",
+                "text": "I'll draft a social media strategy and share it with the team by next week."
+            }
+        ],
+        "action_items": [
+            "Jack to analyze recent market trends and submit a report by Jan 28.",
+            "Karen to create a social media content plan by Feb 1.",
+            "Larry to coordinate with the design team for promotional materials."
+        ]
+    },
+    {
+        "meeting_id": "M004",
+        "title": "Monthly Finance Review",
+        "participants": [
+            "Nancy Brown",
+            "Oscar Turner",
+            "Paula White",
+            "Quincy Adams"
+        ],
+        "date": "2025-01-25",
+        "duration": "2h 15m",
+        "agenda": [
+            "Review of last month's budget",
+            "Discussion on cost-cutting measures",
+            "Planning next quarter's financial goals"
+        ],
+        "transcript": [
+            {
+                "timestamp": "00:04:30",
+                "speaker": "Nancy Brown",
+                "text": "Our budget overshot by 10% last month due to unforeseen expenses."
+            },
+            {
+                "timestamp": "00:35:50",
+                "speaker": "Oscar Turner",
+                "text": "We need stricter controls on discretionary spending for the next quarter."
+            },
+            {
+                "timestamp": "01:45:30",
+                "speaker": "Paula White",
+                "text": "I\u2019ll prepare a detailed proposal for cost optimization."
+            }
+        ],
+        "action_items": [
+            "Oscar to draft a new spending policy document by Feb 5.",
+            "Paula to submit a cost optimization proposal by Feb 10.",
+            "Nancy to schedule a follow-up meeting on Feb 15."
+        ]
+    },
+    {
+        "meeting_id": "M005",
+        "title": "Customer Feedback Session",
+        "participants": [
+            "Rachel Green",
+            "Steve Black",
+            "Tom White",
+            "Uma Singh"
+        ],
+        "date": "2025-01-26",
+        "duration": "1h 45m",
+        "agenda": [
+            "Analyzing recent customer surveys",
+            "Addressing common complaints",
+            "Proposing solutions to enhance customer satisfaction"
+        ],
+        "transcript": [
+            {
+                "timestamp": "00:06:20",
+                "speaker": "Rachel Green",
+                "text": "Customers are reporting delayed responses from our support team."
+            },
+            {
+                "timestamp": "00:25:30",
+                "speaker": "Steve Black",
+                "text": "We should consider increasing the size of the support team."
+            },
+            {
+                "timestamp": "01:15:50",
+                "speaker": "Tom White",
+                "text": "I'll draft a training module to improve support efficiency."
+            }
+        ],
+        "action_items": [
+            "Steve to propose a recruitment plan for additional support staff by Feb 3.",
+            "Tom to design a support training module and share it by Feb 15.",
+            "Uma to evaluate alternative ticketing software by Feb 8."
+        ]
+    },
+    {
+        "meeting_id": "M006",
+        "title": "R&D Roadmap Discussion",
+        "participants": [
+            "Victor Hugo",
+            "Wendy Harris",
+            "Xavier Lee",
+            "Yvonne Scott"
+        ],
+        "date": "2025-01-27",
+        "duration": "2h 00m",
+        "agenda": [
+            "Reviewing current R&D projects",
+            "Setting milestones for Q1",
+            "Allocating resources for new projects"
+        ],
+        "transcript": [
+            {
+                "timestamp": "00:08:15",
+                "speaker": "Victor Hugo",
+                "text": "Our current R&D focus is on improving the AI engine\u2019s real-time capabilities."
+            },
+            {
+                "timestamp": "00:40:00",
+                "speaker": "Wendy Harris",
+                "text": "We need more resources allocated to the computer vision team for the next quarter."
+            },
+            {
+                "timestamp": "01:30:45",
+                "speaker": "Xavier Lee",
+                "text": "I'll lead the efforts on the real-time capabilities enhancement project."
+            }
+        ],
+        "action_items": [
+            "Victor to finalize the R&D roadmap by Feb 1.",
+            "Wendy to draft a resource allocation plan by Feb 5.",
+            "Xavier to present a progress update on real-time capabilities by Feb 15."
+        ]
+    },
+    "{\n  \"meeting_id\": \"M001\",\n  \"title\": \"Chart Guard Discussion\",\n  \"participants\": [],\n  \"date\": \"unknown\",\n  \"duration\": \"unknown\",\n  \"agenda\": [\"Chart guard concept, helpful for us to build the project in the future, and participate in Genesis hackathon\"],\n  \"transcript\": [\n    {\n      \"timestamp\": \"unknown\",\n      \"speaker\": \"unknown\",\n      \"text\": \"Hello, this meeting is about LLM, a chart guard discussion. We are going to discuss about a chart guard concept, helpful for us to build the project in the future, and participate in Genesis hackathon. So that's all. Thank you.\"\n    }\n  ],\n  \"action_items\": []\n}",
+    "{\n  \"meeting_id\": \"M001\",\n  \"title\": \"Chart Guard Discussion\",\n  \"participants\": [],\n  \"date\": \"unknown\",\n  \"duration\": \"unknown\",\n  \"agenda\": [\"Chart guard concept, helpful for us to build the project in the future, and participate in Genesis hackathon\"],\n  \"transcript\": [\n    {\n      \"timestamp\": \"unknown\",\n      \"speaker\": \"unknown\",\n      \"text\": \"Hello, this meeting is about LLM, a chart guard discussion. We are going to discuss about a chart guard concept, helpful for us to build the project in the future, and participate in Genesis hackathon. So that's all. Thank you.\"\n    }\n  ],\n  \"action_items\": []\n}"
+]
