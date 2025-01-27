@@ -232,7 +232,6 @@
             "Wendy to draft a resource allocation plan by Feb 5.",
             "Xavier to present a progress update on real-time capabilities by Feb 15."
         ]
-    },
-    "{\n  \"meeting_id\": \"M001\",\n  \"title\": \"Chart Guard Discussion\",\n  \"participants\": [],\n  \"date\": \"unknown\",\n  \"duration\": \"unknown\",\n  \"agenda\": [\"Chart guard concept, helpful for us to build the project in the future, and participate in Genesis hackathon\"],\n  \"transcript\": [\n    {\n      \"timestamp\": \"unknown\",\n      \"speaker\": \"unknown\",\n      \"text\": \"Hello, this meeting is about LLM, a chart guard discussion. We are going to discuss about a chart guard concept, helpful for us to build the project in the future, and participate in Genesis hackathon. So that's all. Thank you.\"\n    }\n  ],\n  \"action_items\": []\n}",
-    "{\n  \"meeting_id\": \"M001\",\n  \"title\": \"Chart Guard Discussion\",\n  \"participants\": [],\n  \"date\": \"unknown\",\n  \"duration\": \"unknown\",\n  \"agenda\": [\"Chart guard concept, helpful for us to build the project in the future, and participate in Genesis hackathon\"],\n  \"transcript\": [\n    {\n      \"timestamp\": \"unknown\",\n      \"speaker\": \"unknown\",\n      \"text\": \"Hello, this meeting is about LLM, a chart guard discussion. We are going to discuss about a chart guard concept, helpful for us to build the project in the future, and participate in Genesis hackathon. So that's all. Thank you.\"\n    }\n  ],\n  \"action_items\": []\n}"
+    }
+    
 ]

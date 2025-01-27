@@ -88,9 +88,11 @@ class DataHandler:
 
             # Step 2: Create a prompt to ask ChatGroq to find the most relevant data
             selection_prompt = (
-                               f"Here is the data from various meetings. Find the one most relevant to this query: '{query}'. "
-                               "Return only the relevant object in valid JSON format, with no preamble, comments, or explanation.\n\nData:\n"
-                )
+               f"Here is the data from various meetings. Find the one most relevant to this query: '{query}'. "
+                "Respond with only the relevant object as valid JSON. Do not include any preamble, comments, or explanations.\n\n"
+                   "Data:\n"
+            )
+
             selection_prompt += json.dumps(data, indent=2)
 
 # Step 3: Get the most relevant data using ChatGroq
@@ -144,11 +146,30 @@ def render_query_tab():
         else:
             # Display the relevant data
             st.subheader("Relevant Meeting Data:")
+            relevant_data_text = json.dumps(result["relevant_data"], indent=2)
             st.json(result["relevant_data"])
+
+            # Provide a download button for the relevant data
+            st.download_button(
+                label="Download Relevant Data",
+                data=relevant_data_text,
+                file_name="relevant_meeting_data.json",
+                mime="application/json"
+            )
 
             # Display the explanation and suggestions
             st.subheader("Explanation and Suggestions:")
-            st.write(result["explanation"])
+            explanation_text = result["explanation"]
+            st.write(explanation_text)
+
+            # Provide a download button for the explanation
+            st.download_button(
+                label="Download Explanation",
+                data=explanation_text,
+                file_name="explanation.txt",
+                mime="text/plain"
+            )
+
 
 
 # Streamlit App Execution

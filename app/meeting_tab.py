@@ -20,33 +20,64 @@ import threading
 is_recording = False
 
 
-# Function to record audio
-def record_audio_continuously(file_path):
+import streamlit as st
+import wave
+import pyaudio
+import cv2
+import threading
+import os
+
+# Global variable for controlling recording
+is_recording = False
+
+def record_audio_and_video(file_path_audio, file_path_video):
     global is_recording
+
+    # Initialize audio
     p = pyaudio.PyAudio()
-    format = pyaudio.paInt16
+    audio_format = pyaudio.paInt16
     channels = 1
     rate = 44100
     chunk = 1024
+    audio_stream = p.open(format=audio_format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
 
-    stream = p.open(format=format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
+    # Initialize video
+    cap = cv2.VideoCapture(0)  # 0 for default camera
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    frame_width = int(cap.get(3))
+    frame_height = int(cap.get(4))
+    video_writer = cv2.VideoWriter(file_path_video, fourcc, 20.0, (frame_width, frame_height))
+
     st.write("Recording started...")
 
-    frames = []
+    audio_frames = []
+
     try:
         while is_recording:
-            data = stream.read(chunk)
-            frames.append(data)
+            # Capture video frame
+            ret, frame = cap.read()
+            if ret:
+                video_writer.write(frame)
+
+            # Capture audio data
+            audio_data = audio_stream.read(chunk)
+            audio_frames.append(audio_data)
+
     finally:
-        stream.stop_stream()
-        stream.close()
+        # Stop and release resources
+        audio_stream.stop_stream()
+        audio_stream.close()
         p.terminate()
 
-        with wave.open(file_path, 'wb') as wf:
+        cap.release()
+        video_writer.release()
+
+        # Save audio
+        with wave.open(file_path_audio, 'wb') as wf:
             wf.setnchannels(channels)
-            wf.setsampwidth(p.get_sample_size(format))
+            wf.setsampwidth(p.get_sample_size(audio_format))
             wf.setframerate(rate)
-            wf.writeframes(b''.join(frames))
+            wf.writeframes(b''.join(audio_frames))
 
         st.write("Recording completed.")
 
@@ -150,14 +181,11 @@ def generate_meeting_object(transcript):
         return None
 
 # Function to start recording in a separate thread
-def start_recording(file_path):
+def start_recording(file_path_audio, file_path_video):
     global is_recording
     is_recording = True
-    recording_thread = threading.Thread(target=record_audio_continuously, args=(file_path,))
-    recording_thread.start()
+    threading.Thread(target=record_audio_and_video, args=(file_path_audio, file_path_video)).start()
 
-
-# Function to stop recording
 def stop_recording():
     global is_recording
     is_recording = False
@@ -197,35 +225,53 @@ def save_meeting_to_json(meeting_object):
         # Use json.dumps with indent for pretty printing
         f.write(json.dumps(meetings_data, indent=4))
 
-# Streamlit UI logic
 def render_meeting_tab():
-    st.title("Meeting Recorder with ChatGroq")
-    file_path = "meeting_audio.wav"
+    st.title("Meeting Recorder with Video and Audio")
+
+    # File paths
+    file_path_audio = "meeting_audio.wav"
+    file_path_video = "meeting_video.avi"
 
     # Start Recording button
     if st.button("Start Recording"):
-        start_recording(file_path)
+        start_recording(file_path_audio, file_path_video)
 
     # Stop Recording button
     if st.button("Stop Recording"):
         stop_recording()
 
-    # Transcribe button
-    if os.path.exists(file_path) and st.button("Transcribe Audio"):
-        transcript = transcribe_audio(file_path)
-        if transcript:
-            st.subheader("Transcript:")
-            st.write(transcript)
+    # Provide download buttons after recording
+    if os.path.exists(file_path_audio) and os.path.exists(file_path_video):
+        st.subheader("Download Recorded Files:")
+        st.download_button(
+            label="Download Audio",
+            data=open(file_path_audio, "rb").read(),
+            file_name="meeting_audio.wav",
+            mime="audio/wav"
+        )
+        st.download_button(
+            label="Download Video",
+            data=open(file_path_video, "rb").read(),
+            file_name="meeting_video.avi",
+            mime="video/x-msvideo"
+        )
 
-            # Generate meeting object
-            meeting_object = generate_meeting_object(transcript)
-            if meeting_object:
-                st.subheader("Generated Meeting Object:")
-                st.json(meeting_object)
+        # Transcribe audio
+        if st.button("Transcribe and Save Meeting"):
+            transcript = transcribe_audio(file_path_audio)
+            if transcript:
+                st.subheader("Transcript:")
+                st.write(transcript)
 
-                # Save the meeting object to the meetings.json file
-                save_meeting_to_json(meeting_object)
-                st.success("Meeting data has been saved to meetings.json.")
+                # Generate and save meeting object
+                meeting_object = generate_meeting_object(transcript)
+                if meeting_object:
+                    st.subheader("Generated Meeting Object:")
+                    st.json(meeting_object)
+
+                    save_meeting_to_json(meeting_object)
+                    st.success("Meeting data has been saved to meetings.json.")
+
 
 # Main entry point
 if __name__ == "__main__":
