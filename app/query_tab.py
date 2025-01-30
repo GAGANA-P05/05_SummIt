@@ -1,134 +1,89 @@
-import streamlit as st
-import json
 import os
+import json
+import streamlit as st
+import chromadb
 from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-from langchain_groq import ChatGroq
+import numpy as np
+from langchain_groq import ChatGroq # Ensure you have ChatGroq installed
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
 
 
-# Initialize the sentence transformer model for embeddings
-model = SentenceTransformer('all-MiniLM-L6-v2')
-
-import os
-import json
-from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer
-
-# class DataHandler:
-#     def __init__(self, file_path, model_name="all-MiniLM-L6-v2"):
-#         self.file_path = file_path
-#         self.model = SentenceTransformer(model_name)  # Load the embedding model
-
-#     def get_related_data(self, query):
-#         # Check if the file exists and is not empty
-#         if os.path.exists(self.file_path) and os.path.getsize(self.file_path) > 0:
-#             with open(self.file_path, "r", encoding="utf-8") as f:
-#                 data = json.load(f)
-
-#             # Extract transcript texts
-#             transcripts = []
-#             transcript_to_data_map = []
-
-#             for item in data:
-#                 if "transcript" in item:
-#                     for transcript_item in item["transcript"]:
-#                         if "text" in transcript_item:
-#                             transcripts.append(transcript_item["text"])
-#                             transcript_to_data_map.append(item)  # Maintain a mapping to the original data
-
-#             if not transcripts:
-#                 return None  # No transcripts available
-
-#             # Compute embeddings for all transcript texts
-#             transcript_embeddings = self.model.encode(transcripts)
-
-#             # Compute the embedding for the query
-#             query_embedding = self.model.encode([query])[0]
-
-#             # Calculate cosine similarities between query embedding and transcript embeddings
-#             similarities = cosine_similarity([query_embedding], transcript_embeddings)[0]
-
-#             # Find the most related transcript index
-#             max_similarity_index = similarities.argmax()
-#             max_similarity_score = similarities[max_similarity_index]
-
-#             # Define a similarity threshold for relevance
-#             threshold = 0.5
-
-#             if max_similarity_score > threshold:
-#                 # Return the most relevant data
-#                 return transcript_to_data_map[max_similarity_index]
-#             else:
-#                 return None  # No relevant data found
-#         else:
-#             return None  # File doesn't exist or is empty
-# # turn an empty list if the file is empty
-
-
-import os
-import json
-import streamlit as st
-  # Replace with actual ChatGroq SDK import
 
 
 class DataHandler:
     def __init__(self, file_path):
         self.file_path = file_path
-        self.llm_helper = LLMHelper()
+        self.embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')  # Lightweight model
+        self.chroma_client = chromadb.PersistentClient(path="chroma_db")  # Persistent ChromaDB
+        self.collection = self.chroma_client.get_or_create_collection(name="meeting_data")
+        self.llm_helper = LLMHelper()  # Initialize LLMHelper for real LLM responses
 
-    def get_relevant_data_and_explanation(self, query):
-        # Step 1: Read and check JSON file
+        # Only initialize embeddings if the database is empty
+        if self.collection.count() == 0:
+            self._initialize_vector_store()
+
+    def _initialize_vector_store(self):
+        """Load meeting data and store embeddings in ChromaDB (only runs once)."""
         if os.path.exists(self.file_path) and os.path.getsize(self.file_path) > 0:
             with open(self.file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            # Step 2: Create a prompt to ask ChatGroq to find the most relevant data
-            selection_prompt = (
-               f"Here is the data from various meetings. Find the one most relevant to this query: '{query}'. "
-                "Respond with only the relevant object as valid JSON. Do not include any preamble, comments, or explanations.\n\n"
-                   "Data:\n"
-            )
+            # Convert all meeting data into vectorized format and store in ChromaDB
+            embeddings = []
+            metadatas = []
+            ids = []
 
-            selection_prompt += json.dumps(data, indent=2)
+            for idx, meeting in enumerate(data):
+                text_representation = json.dumps(meeting)  # Convert meeting data to text
+                vector = self.embedding_model.encode(text_representation).tolist()
 
-# Step 3: Get the most relevant data using ChatGroq
-            relevant_data_json = self.llm_helper.get_response(selection_prompt)
-            print("Relevant Data (JSON object):", relevant_data_json)
+                embeddings.append(vector)
+                metadatas.append({"meeting": text_representation})
+                ids.append(str(idx))
 
+            # Store in ChromaDB
+            self.collection.add(ids=ids, embeddings=embeddings, metadatas=metadatas)
+            print(f"✅ {len(data)} meetings embedded and stored in ChromaDB")
 
-            # Parse the response to JSON
-            try:
-                relevant_data = json.loads(relevant_data_json)
-            except json.JSONDecodeError:
-                return {"error": "Failed to parse the relevant data response."}
+    def get_relevant_data_and_explanation(self, query):
+        """Retrieve relevant meeting data using vector search and generate an explanation."""
+        query_vector = self.embedding_model.encode(query).tolist()
 
-            # Step 4: Create a follow-up prompt for explanation and suggestions
+        # Retrieve most relevant meeting using ChromaDB
+        results = self.collection.query(
+            query_embeddings=[query_vector],
+            n_results=1  # Retrieve top 1 match
+        )
+
+        if results['ids'][0]:  # If a result is found
+            relevant_data = json.loads(results['metadatas'][0][0]['meeting'])
+
+            # Generate explanation using LLM
             explanation_prompt = (
-                "Here is the most relevant meeting data:\n"
+                f"Here is the most relevant meeting data:\n"
                 f"{json.dumps(relevant_data, indent=2)}\n\n"
                 "Provide a summary of this meeting, explain its meaning, and suggest actionable items or follow-up steps."
             )
 
-            explanation_response = self.llm_helper.get_response(explanation_prompt)
+            explanation_response = self.llm_helper.get_response(explanation_prompt)  # Use real LLM response
 
             return {"relevant_data": relevant_data, "explanation": explanation_response}
         else:
-            return {"error": "The JSON file is empty or does not exist."}
+            return {"error": "No relevant meeting found."}
 
 
 class LLMHelper:
+    """Helper class to interact with ChatGroq's Llama3 model."""
     def __init__(self):
         self.llm = ChatGroq(groq_api_key=os.getenv("GROQ_API_KEY"), model_name="llama3-8b-8192")
 
     def get_response(self, prompt):
-        # Send the prompt to ChatGroq and return the response
+        """Send the prompt to ChatGroq and return the response."""
         response = self.llm.invoke(prompt)
-        return response.content
-
+        return response.content  # Extract and return the response content
 
 def render_query_tab():
     st.title("Query Tab")
@@ -137,19 +92,19 @@ def render_query_tab():
     if st.button("Search"):
         # Initialize DataHandler with the path to the JSON file
         data_handler = DataHandler("data/meetings.json")
-        
-        # Get relevant data and its explanation based on the user's query
+
+        # Get relevant data and explanation
         result = data_handler.get_relevant_data_and_explanation(query)
-        
+
         if "error" in result:
             st.write(result["error"])
         else:
-            # Display the relevant data
+            # Display relevant data
             st.subheader("Relevant Meeting Data:")
             relevant_data_text = json.dumps(result["relevant_data"], indent=2)
             st.json(result["relevant_data"])
 
-            # Provide a download button for the relevant data
+            # Download button for relevant data
             st.download_button(
                 label="Download Relevant Data",
                 data=relevant_data_text,
@@ -157,19 +112,18 @@ def render_query_tab():
                 mime="application/json"
             )
 
-            # Display the explanation and suggestions
+            # Display explanation and suggestions
             st.subheader("Explanation and Suggestions:")
             explanation_text = result["explanation"]
             st.write(explanation_text)
 
-            # Provide a download button for the explanation
+            # Download button for explanation
             st.download_button(
                 label="Download Explanation",
                 data=explanation_text,
                 file_name="explanation.txt",
                 mime="text/plain"
             )
-
 
 
 # Streamlit App Execution

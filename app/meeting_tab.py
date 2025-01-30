@@ -191,22 +191,6 @@ def stop_recording():
     is_recording = False
 
 
-# Function to save the meeting object into the JSON file
-# def save_meeting_to_json(meeting_object):
-#     # Read existing data from the file
-#     if os.path.exists("data/meetings.json"):
-#         with open("data/meetings.json", 'r', encoding='utf-8') as f:
-#             meetings_data = json.load(f)
-#     else:
-#         meetings_data = []
-
-#     # Add the new meeting object to the list
-#     meetings_data.append(meeting_object)
-
-#     # Write back to the file
-#     with open("data/meetings.json", 'w', encoding='utf-8') as f:
-#         json.dump(meetings_data, f, indent=4)
-
 
 # Function to save the meeting object into the JSON file
 def save_meeting_to_json(meeting_object):
@@ -276,3 +260,116 @@ def render_meeting_tab():
 # Main entry point
 if __name__ == "__main__":
     render_meeting_tab()
+
+
+
+
+
+
+import streamlit as st
+import wave
+import pyaudio
+import cv2
+import threading
+import os
+import requests
+import time
+
+# ChatGroq API Details
+CHATGROQ_API_URL_TRANSCRIBE = "https://api.groq.com/openai/v1/audio/transcriptions"
+CHATGROQ_API_URL_CHAT = "https://api.groq.com/openai/v1/chat/completions"
+API_KEY = "your_groq_api_key"  # Replace with your actual ChatGroq API key
+
+# Global variable for controlling real-time transcription
+is_live_transcription = False
+
+def record_audio_chunk(file_path_audio):
+    """Records a short audio chunk and saves it."""
+    p = pyaudio.PyAudio()
+    audio_format = pyaudio.paInt16
+    channels = 1
+    rate = 44100
+    chunk = 1024
+    
+    audio_stream = p.open(format=audio_format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
+    frames = []
+    
+    for _ in range(0, int(rate / chunk * 3)):  # Record for 3 seconds
+        data = audio_stream.read(chunk)
+        frames.append(data)
+    
+    audio_stream.stop_stream()
+    audio_stream.close()
+    p.terminate()
+    
+    with wave.open(file_path_audio, 'wb') as wf:
+        wf.setnchannels(channels)
+        wf.setsampwidth(p.get_sample_size(audio_format))
+        wf.setframerate(rate)
+        wf.writeframes(b''.join(frames))
+
+def transcribe_audio(file_path):
+    """Transcribes the recorded audio chunk."""
+    if not os.path.exists(file_path):
+        return None
+    
+    with open(file_path, "rb") as audio_file:
+        files = {"file": audio_file}
+        data = {"model": "whisper-large-v3", "response_format": "json", "temperature": 0}
+        headers = {"Authorization": f"Bearer {API_KEY}"}
+        response = requests.post(CHATGROQ_API_URL_TRANSCRIBE, files=files, data=data, headers=headers)
+    
+    if response.status_code == 200:
+        return response.json().get("text", "")
+    return None
+
+def get_real_time_insights(transcript):
+    """Fetches real-time insights based on the transcript."""
+    prompt = f"Generate real-time insights and suggestions based on the following conversation:\n{transcript}\n\nProvide actionable insights."
+    
+    headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
+    payload = {"model": "llama3-8b-8192", "messages": [{"role": "user", "content": prompt}], "temperature": 0}
+    
+    response = requests.post(CHATGROQ_API_URL_CHAT, json=payload, headers=headers)
+    
+    if response.status_code == 200:
+        return response.json().get("choices", [{}])[0].get("message", {}).get("content", "")
+    return "No insights available."
+
+def start_live_transcription():
+    """Continuously records, transcribes, and fetches insights every 3 seconds."""
+    global is_live_transcription
+    is_live_transcription = True
+    
+    while is_live_transcription:
+        file_path_audio = "live_audio.wav"
+        record_audio_chunk(file_path_audio)
+        transcript = transcribe_audio(file_path_audio)
+        
+        if transcript:
+            insights = get_real_time_insights(transcript)
+            st.session_state["live_insights"] = insights
+        time.sleep(3)
+
+def stop_live_transcription():
+    """Stops live transcription."""
+    global is_live_transcription
+    is_live_transcription = False
+
+def render_live_transcription_tab():
+    st.title("Live Meeting Insights")
+    
+    if "live_insights" not in st.session_state:
+        st.session_state["live_insights"] = ""
+    
+    if st.button("Start Live Insights"):
+        threading.Thread(target=start_live_transcription, daemon=True).start()
+    
+    if st.button("Stop Live Insights"):
+        stop_live_transcription()
+    
+    st.subheader("Real-Time Insights:")
+    st.write(st.session_state["live_insights"])
+    
+if __name__ == "__main__":
+    render_live_transcription_tab()

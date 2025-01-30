@@ -232,6 +232,6 @@
             "Wendy to draft a resource allocation plan by Feb 5.",
             "Xavier to present a progress update on real-time capabilities by Feb 15."
         ]
-    }
-    
+    },
+    "{\n  \"meeting_id\": \"M001\",\n  \"title\": \"Global Warming Causes and Consequences\",\n  \"participants\": [\"Dr. Nalaji\", \"Gaurav\"],\n  \"date\": \"\",\n  \"duration\": \"\",\n  \"agenda\": [],\n  \"transcript\": [\n    {\n      \"timestamp\": \"\",\n      \"speaker\": \"Dr. Nalaji\",\n      \"text\": \"Hi, this is Dr. Nalaji and I am here to discuss about global warming causes and consequences.\"\n    },\n    {\n      \"timestamp\": \"\",\n      \"speaker\": \"Gaurav\",\n      \"text\": \"Hi, I am Gaurav and I am going to speak about volcano eruption. Actually, a volcano eruption is causing from the middle of the earth to the middle of the earth.\"\n    },\n    {\n      \"timestamp\": \"\",\n      \"speaker\": \"Gaurav\",\n      \"text\": \"So, be careful for taking out all the details and other things from the middle of the direction. So, that's all about the walking reduction.\"\n    },\n    {\n      \"timestamp\": \"\",\n      \"speaker\": \"Gaurav\",\n      \"text\": \"The follow-up meeting will be followed by Jayakirtha. Thank you.\"\n    }\n  ],\n  \"action_items\": []\n}"
 ]
