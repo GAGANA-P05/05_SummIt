@@ -29,6 +29,8 @@ class DataHandler:
         meetings_data = []
 
     # Initialize embeddings only if there's new data in the file 
+      print(f"ℹ️ {len(meetings_data)} meetings loaded from {file_path}")
+      print(f"ℹ️ {self.collection.count()} meetings stored in ChromaDB") 
       if len(meetings_data) > self.collection.count():
           self._initialize_vector_store()
 

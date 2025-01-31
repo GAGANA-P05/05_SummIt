@@ -5,14 +5,24 @@ from sentence_transformers import SentenceTransformer
 
 class DataHandler:
     def __init__(self, file_path):
-        self.file_path = file_path
-        self.embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')  # Lightweight model
-        self.chroma_client = chromadb.PersistentClient(path="chroma_db")  # Persistent storage
-        self.collection = self.chroma_client.get_or_create_collection(name="meeting_data")
+      self.file_path = file_path
+      self.embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+      self.chroma_client = chromadb.PersistentClient(path="chroma_db")
+      self.collection = self.chroma_client.get_or_create_collection(name="meeting_data")
 
-        # Only initialize embeddings if the database is empty
-        if self.collection.count() == 0:
-            self._initialize_vector_store()
+
+    # Load existing meeting data from the file
+      try:
+          with open(file_path, 'r', encoding='utf-8') as f:
+            meetings_data = json.load(f)
+      except FileNotFoundError:
+        meetings_data = []
+
+    # Initialize embeddings only if there's new data in the file 
+      print(f"ℹ️ {len(meetings_data)} meetings loaded from {file_path}")
+      print(f"ℹ️ {self.collection.count()} meetings stored in ChromaDB") 
+      if len(meetings_data) > self.collection.count():
+          self._initialize_vector_store()
 
     def _initialize_vector_store(self):
         """Load meeting data and store embeddings in ChromaDB (only runs once)."""

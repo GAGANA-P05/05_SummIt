@@ -272,6 +272,125 @@
             "Charlie to draft a feature prioritization document by Feb 12."
         ]
     },
+    {
+        "meeting_id": "M008",
+        "title": "Tech Stack Optimization Meeting",
+        "participants": [
+            "Ethan Wright",
+            "Fiona Carter",
+            "George Nelson",
+            "Hannah Adams"
+        ],
+        "date": "2025-02-02",
+        "duration": "1h 30m",
+        "agenda": [
+            "Reviewing current tech stack performance",
+            "Identifying bottlenecks in system architecture",
+            "Proposing optimizations for scalability"
+        ],
+        "transcript": [
+            {
+                "timestamp": "00:10:45",
+                "speaker": "Ethan Wright",
+                "text": "We need to analyze the current system load and find performance bottlenecks."
+            },
+            {
+                "timestamp": "00:28:30",
+                "speaker": "Fiona Carter",
+                "text": "Our backend API response times have increased by 20%, we should optimize the database queries."
+            },
+            {
+                "timestamp": "01:05:15",
+                "speaker": "George Nelson",
+                "text": "Switching to a microservices architecture might help improve system scalability."
+            }
+        ],
+        "action_items": [
+            "Ethan to conduct a system performance audit by Feb 5.",
+            "Fiona to optimize database queries and report findings by Feb 7.",
+            "George to propose a microservices migration plan by Feb 12."
+        ]
+    },
+    {
+        "meeting_id": "M009",
+        "title": "AI Ethics and Compliance Review",
+        "participants": [
+            "Isabella Moore",
+            "Jack Thompson",
+            "Kevin Patel",
+            "Lily Chen"
+        ],
+        "date": "2025-02-05",
+        "duration": "1h 45m",
+        "agenda": [
+            "Discussing ethical implications of AI models",
+            "Ensuring compliance with global AI regulations",
+            "Reviewing data privacy policies"
+        ],
+        "transcript": [
+            {
+                "timestamp": "00:12:30",
+                "speaker": "Isabella Moore",
+                "text": "We must ensure our AI models are fair and unbiased, especially in decision-making processes."
+            },
+            {
+                "timestamp": "00:35:20",
+                "speaker": "Jack Thompson",
+                "text": "There are new AI compliance regulations coming into effect next quarter, and we need to align with them."
+            },
+            {
+                "timestamp": "01:15:50",
+                "speaker": "Kevin Patel",
+                "text": "We should implement additional checks for bias detection in our AI pipeline."
+            }
+        ],
+        "action_items": [
+            "Isabella to draft an AI ethics review report by Feb 10.",
+            "Jack to summarize new AI compliance regulations by Feb 12.",
+            "Kevin to implement a bias detection framework by Feb 18."
+        ]
+    },
+    {
+        "meeting_id": "M010",
+        "title": "Product Launch Readiness Check",
+        "participants": [
+            "Michael Brown",
+            "Natalie Green",
+            "Oliver White",
+            "Pamela Black"
+        ],
+        "date": "2025-02-08",
+        "duration": "2h 00m",
+        "agenda": [
+            "Reviewing final product features",
+            "Testing product performance",
+            "Preparing marketing and sales strategies"
+        ],
+        "transcript": [
+            {
+                "timestamp": "00:08:15",
+                "speaker": "Michael Brown",
+                "text": "The product's feature set is finalized, and we're ready for the launch phase."
+            },
+            {
+                "timestamp": "00:40:00",
+                "speaker": "Natalie Green",
+                "text": "We need to conduct stress tests to ensure the product can handle peak loads."
+            },
+            {
+                "timestamp": "01:30:45",
+                "speaker": "Oliver White",
+                "text": "Our marketing team is preparing a multi-channel campaign for the launch."
+            }
+        ],
+        "action_items": [
+            "Michael to coordinate with the QA team for stress testing by Feb 10.",
+            "Natalie to oversee the performance testing phase and report results by Feb 15.",
+            "Pamela to finalize the marketing and sales strategies by Feb 12."
+        ]
+    },
+    
+    
     
 
     "{\n  \"meeting_id\": \"M001\",\n  \"title\": \"Global Warming Causes and Consequences\",\n  \"participants\": [\"Dr. Nalaji\", \"Gaurav\"],\n  \"date\": \"\",\n  \"duration\": \"\",\n  \"agenda\": [],\n  \"transcript\": [\n    {\n      \"timestamp\": \"\",\n      \"speaker\": \"Dr. Nalaji\",\n      \"text\": \"Hi, this is Dr. Nalaji and I am here to discuss about global warming causes and consequences.\"\n    },\n    {\n      \"timestamp\": \"\",\n      \"speaker\": \"Gaurav\",\n      \"text\": \"Hi, I am Gaurav and I am going to speak about volcano eruption. Actually, a volcano eruption is causing from the middle of the earth to the middle of the earth.\"\n    },\n    {\n      \"timestamp\": \"\",\n      \"speaker\": \"Gaurav\",\n      \"text\": \"So, be careful for taking out all the details and other things from the middle of the direction. So, that's all about the walking reduction.\"\n    },\n    {\n      \"timestamp\": \"\",\n      \"speaker\": \"Gaurav\",\n      \"text\": \"The follow-up meeting will be followed by Jayakirtha. Thank you.\"\n    }\n  ],\n  \"action_items\": []\n}"
