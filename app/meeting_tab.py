@@ -30,56 +30,6 @@ import os
 # Global variable for controlling recording
 is_recording = False
 
-def record_audio_and_video(file_path_audio, file_path_video):
-    global is_recording
-
-    # Initialize audio
-    p = pyaudio.PyAudio()
-    audio_format = pyaudio.paInt16
-    channels = 1
-    rate = 44100
-    chunk = 1024
-    audio_stream = p.open(format=audio_format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
-
-    # Initialize video
-    cap = cv2.VideoCapture(0)  # 0 for default camera
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    frame_width = int(cap.get(3))
-    frame_height = int(cap.get(4))
-    video_writer = cv2.VideoWriter(file_path_video, fourcc, 20.0, (frame_width, frame_height))
-
-    st.write("Recording started...")
-
-    audio_frames = []
-
-    try:
-        while is_recording:
-            # Capture video frame
-            ret, frame = cap.read()
-            if ret:
-                video_writer.write(frame)
-
-            # Capture audio data
-            audio_data = audio_stream.read(chunk)
-            audio_frames.append(audio_data)
-
-    finally:
-        # Stop and release resources
-        audio_stream.stop_stream()
-        audio_stream.close()
-        p.terminate()
-
-        cap.release()
-        video_writer.release()
-
-        # Save audio
-        with wave.open(file_path_audio, 'wb') as wf:
-            wf.setnchannels(channels)
-            wf.setsampwidth(p.get_sample_size(audio_format))
-            wf.setframerate(rate)
-            wf.writeframes(b''.join(audio_frames))
-
-        st.write("Recording completed.")
 
 # Function to transcribe audio using ChatGroq
 def transcribe_audio(file_path):
@@ -110,9 +60,6 @@ import json
 import streamlit as st
 import os
 
-# ChatGroq API Details
-CHATGROQ_API_URL_CHAT = "https://api.groq.com/openai/v1/chat/completions"  # Ensure this is the correct API endpoint
-API_KEY = "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"  # Replace with your ChatGroq API key
 
 # Function to generate meeting object using ChatGroq
 def generate_meeting_object(transcript):
@@ -180,15 +127,9 @@ def generate_meeting_object(transcript):
         st.error(f"Error generating meeting object: {e}")
         return None
 
-# Function to start recording in a separate thread
-def start_recording(file_path_audio, file_path_video):
-    global is_recording
-    is_recording = True
-    threading.Thread(target=record_audio_and_video, args=(file_path_audio, file_path_video)).start()
 
-def stop_recording():
-    global is_recording
-    is_recording = False
+
+
 
 
 
@@ -209,22 +150,209 @@ def save_meeting_to_json(meeting_object):
         # Use json.dumps with indent for pretty printing
         f.write(json.dumps(meetings_data, indent=4))
 
+
+
+
+
+
+
+
+
+import streamlit as st
+import wave
+import pyaudio
+import os
+import threading
+import cv2
+import time
+import requests
+import json
+
+# Global variables to control recording and transcription state
+is_recording = False
+is_live_transcription = False
+
+import pyaudio
+import wave
+import cv2
+import threading
+import time
+import os
+import streamlit as st
+import queue
+
+# Global variables
+is_recording = False
+is_live_transcription = False
+transcript_queue = queue.Queue()  # Queue to hold transcript data
+
+def get_realtime_insights(transcript_chunk):
+    prompt = (
+        f"Given the following meeting transcript chunk:\n\n{transcript_chunk}\n\n"
+        "Provide real-time insights and suggestions for the conversation.  "
+        "Focus on identifying key discussion points, potential issues, "
+        "and actionable suggestions for improvement.  "
+        "Respond in a concise and structured format, like this:\n\n"
+        "```json\n"
+        "{\n"
+        "  \"key_discussion_points\": [\n"
+        "    \"Mentioned the need for better client communication.\",\n"
+        "    \"Discussed the Q3 budget and potential cost overruns.\",\n"
+        "    \"Brainstormed new marketing strategies.\"\n"
+        "  ],\n"
+        "  \"potential_issues\": [\n"
+        "    \"Client communication has been inconsistent and needs improvement.\",\n"
+        "    \"Current spending trends indicate a possible budget deficit.\"\n"
+        "  ],\n"
+        "  \"suggestions\": [\n"
+        "    \"Implement a weekly client update email.\",\n"
+        "    \"Review the budget line items and identify areas for cost reduction.\",\n"
+        "    \"Schedule a follow-up meeting to further discuss the marketing strategies.\"\n"
+        "  ]\n"
+        "}\n"
+        "```\n"
+        "Respond *only* with the JSON object. No preamble or explanation."
+    )
+
+    try:
+        headers = {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "model": "llama3-8b-8192",  # Or another suitable model
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0,  # Keep temperature low for factual responses
+        }
+
+        response = requests.post(CHATGROQ_API_URL_CHAT, json=payload, headers=headers)
+
+        if response.status_code == 200:
+            try:  # Attempt to parse JSON response
+                return json.loads(response.json().get("choices", [{}])[0].get("message", {}).get("content", "{}"))
+            except json.JSONDecodeError:
+                st.error(f"Invalid JSON response from ChatGroq: {response.text}")
+                return None
+        else:
+            st.error(f"ChatGroq API Error: {response.status_code} - {response.text}")
+            return None
+    except Exception as e:
+        st.error(f"Error getting real-time insights: {e}")
+        return None
+
+
+def record_audio_and_video(file_path_audio, file_path_video):
+    global is_recording, is_live_transcription
+
+    # Initialize audio
+    p = pyaudio.PyAudio()
+    audio_format = pyaudio.paInt16
+    channels = 1
+    rate = 44100
+    chunk = 1024
+    audio_stream = p.open(format=audio_format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
+
+    # Initialize video
+    cap = cv2.VideoCapture(0)  # 0 for default camera
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    frame_width = int(cap.get(3))
+    frame_height = int(cap.get(4))
+    video_writer = cv2.VideoWriter(file_path_video, fourcc, 20.0, (frame_width, frame_height))
+
+    st.write("Recording started...")
+
+    audio_frames = []
+    transcription_frames = []
+    start_time = time.time()
+
+    try:
+        while is_recording:
+            # Capture video frame
+            ret, frame = cap.read()
+            if ret:
+                video_writer.write(frame)
+
+            # Capture audio data
+            audio_data = audio_stream.read(chunk)
+            audio_frames.append(audio_data)
+            transcription_frames.append(audio_data)
+
+            # Periodically send audio chunks for transcription
+            if time.time() - start_time >= 13:  # Every 3 seconds
+                if is_live_transcription:
+                    with wave.open("temp_audio.wav", 'wb') as wf:
+                        wf.setnchannels(channels)
+                        wf.setsampwidth(p.get_sample_size(audio_format))
+                        wf.setframerate(rate)
+                        wf.writeframes(b''.join(transcription_frames))
+                    
+                    transcript = transcribe_audio("temp_audio.wav")
+                    print("transcripteddata:",transcript)  
+                    data = get_realtime_insights(transcript)
+
+
+                    if transcript:
+                        print("Transcript received:", data)
+                        transcript_queue.put(data) 
+
+                transcription_frames = []
+                start_time = time.time()
+
+    finally:
+        # Stop and release resources
+        audio_stream.stop_stream()
+        audio_stream.close()
+        p.terminate()
+
+        cap.release()
+        video_writer.release()
+
+        # Save audio
+        with wave.open(file_path_audio, 'wb') as wf:
+            wf.setnchannels(channels)
+            wf.setsampwidth(p.get_sample_size(audio_format))
+            wf.setframerate(rate)
+            wf.writeframes(b''.join(audio_frames))
+
+        st.write("Recording completed.")
+
+def start_live_transcription():
+    global is_live_transcription
+    is_live_transcription = True
+
+def stop_live_transcription():
+    global is_live_transcription
+    is_live_transcription = False
+
+def start_recording_and_transcription(file_path_audio, file_path_video):
+    global is_recording
+    is_recording = True
+    threading.Thread(target=record_audio_and_video, args=(file_path_audio, file_path_video)).start()
+    start_live_transcription()
+
+def stop_recording_and_transcription():
+    global is_recording
+    is_recording = False
+    stop_live_transcription()
+
 def render_meeting_tab():
     st.title("Meeting Recorder with Video and Audio")
+    # Initialize session state for live insights
+    if "live_insights" not in st.session_state:
+        st.session_state["live_insights"] = "No live insights yet."
 
-    # File paths
+    # File paths for recording
     file_path_audio = "meeting_audio.wav"
     file_path_video = "meeting_video.avi"
 
-    # Start Recording button
+    # Start and stop recording buttons
     if st.button("Start Recording"):
-        start_recording(file_path_audio, file_path_video)
+        start_recording_and_transcription(file_path_audio, file_path_video)
 
-    # Stop Recording button
     if st.button("Stop Recording"):
-        stop_recording()
+        stop_recording_and_transcription()
 
-    # Provide download buttons after recording
     if os.path.exists(file_path_audio) and os.path.exists(file_path_video):
         st.subheader("Download Recorded Files:")
         st.download_button(
@@ -240,14 +368,14 @@ def render_meeting_tab():
             mime="video/x-msvideo"
         )
 
-        # Transcribe audio
+        # Transcribe and save the meeting
         if st.button("Transcribe and Save Meeting"):
             transcript = transcribe_audio(file_path_audio)
             if transcript:
                 st.subheader("Transcript:")
                 st.write(transcript)
 
-                # Generate and save meeting object
+                # Generate and save meeting object (similar to earlier)
                 meeting_object = generate_meeting_object(transcript)
                 if meeting_object:
                     st.subheader("Generated Meeting Object:")
@@ -256,120 +384,20 @@ def render_meeting_tab():
                     save_meeting_to_json(meeting_object)
                     st.success("Meeting data has been saved to meetings.json.")
 
+    # Real-time insights display
+    st.subheader("Real-Time Insights:")
+    insights_placeholder = st.empty()
+    while True:  # Main loop for updating insights
+        if not is_live_transcription and transcript_queue.empty():
+            break # Break out of the loop if not transcribing and queue is empty
+
+        while not transcript_queue.empty():
+            transcript = transcript_queue.get()
+            st.session_state["live_insights"] += transcript + "\n"
+
+        insights_placeholder.write(st.session_state["live_insights"])  # Update the placeholder
+        time.sleep(3)  # Adjust update frequency as needed
 
 # Main entry point
 if __name__ == "__main__":
     render_meeting_tab()
-
-
-
-
-
-
-import streamlit as st
-import wave
-import pyaudio
-import cv2
-import threading
-import os
-import requests
-import time
-
-# ChatGroq API Details
-CHATGROQ_API_URL_TRANSCRIBE = "https://api.groq.com/openai/v1/audio/transcriptions"
-CHATGROQ_API_URL_CHAT = "https://api.groq.com/openai/v1/chat/completions"
-API_KEY = "your_groq_api_key"  # Replace with your actual ChatGroq API key
-
-# Global variable for controlling real-time transcription
-is_live_transcription = False
-
-def record_audio_chunk(file_path_audio):
-    """Records a short audio chunk and saves it."""
-    p = pyaudio.PyAudio()
-    audio_format = pyaudio.paInt16
-    channels = 1
-    rate = 44100
-    chunk = 1024
-    
-    audio_stream = p.open(format=audio_format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
-    frames = []
-    
-    for _ in range(0, int(rate / chunk * 3)):  # Record for 3 seconds
-        data = audio_stream.read(chunk)
-        frames.append(data)
-    
-    audio_stream.stop_stream()
-    audio_stream.close()
-    p.terminate()
-    
-    with wave.open(file_path_audio, 'wb') as wf:
-        wf.setnchannels(channels)
-        wf.setsampwidth(p.get_sample_size(audio_format))
-        wf.setframerate(rate)
-        wf.writeframes(b''.join(frames))
-
-def transcribe_audio(file_path):
-    """Transcribes the recorded audio chunk."""
-    if not os.path.exists(file_path):
-        return None
-    
-    with open(file_path, "rb") as audio_file:
-        files = {"file": audio_file}
-        data = {"model": "whisper-large-v3", "response_format": "json", "temperature": 0}
-        headers = {"Authorization": f"Bearer {API_KEY}"}
-        response = requests.post(CHATGROQ_API_URL_TRANSCRIBE, files=files, data=data, headers=headers)
-    
-    if response.status_code == 200:
-        return response.json().get("text", "")
-    return None
-
-def get_real_time_insights(transcript):
-    """Fetches real-time insights based on the transcript."""
-    prompt = f"Generate real-time insights and suggestions based on the following conversation:\n{transcript}\n\nProvide actionable insights."
-    
-    headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
-    payload = {"model": "llama3-8b-8192", "messages": [{"role": "user", "content": prompt}], "temperature": 0}
-    
-    response = requests.post(CHATGROQ_API_URL_CHAT, json=payload, headers=headers)
-    
-    if response.status_code == 200:
-        return response.json().get("choices", [{}])[0].get("message", {}).get("content", "")
-    return "No insights available."
-
-def start_live_transcription():
-    """Continuously records, transcribes, and fetches insights every 3 seconds."""
-    global is_live_transcription
-    is_live_transcription = True
-    
-    while is_live_transcription:
-        file_path_audio = "live_audio.wav"
-        record_audio_chunk(file_path_audio)
-        transcript = transcribe_audio(file_path_audio)
-        
-        if transcript:
-            insights = get_real_time_insights(transcript)
-            st.session_state["live_insights"] = insights
-        time.sleep(3)
-
-def stop_live_transcription():
-    """Stops live transcription."""
-    global is_live_transcription
-    is_live_transcription = False
-
-def render_live_transcription_tab():
-    st.title("Live Meeting Insights")
-    
-    if "live_insights" not in st.session_state:
-        st.session_state["live_insights"] = ""
-    
-    if st.button("Start Live Insights"):
-        threading.Thread(target=start_live_transcription, daemon=True).start()
-    
-    if st.button("Stop Live Insights"):
-        stop_live_transcription()
-    
-    st.subheader("Real-Time Insights:")
-    st.write(st.session_state["live_insights"])
-    
-if __name__ == "__main__":
-    render_live_transcription_tab()
