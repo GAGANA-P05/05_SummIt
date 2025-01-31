@@ -1,5 +1,5 @@
 import streamlit as st
-from query_tab import render_query_tab
+from query.query_main import render_query_tab
 from meeting.meeting_main import render_meeting_tab
 
 st.set_page_config(page_title="Meeting AI", layout="wide")
