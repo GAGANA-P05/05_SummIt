@@ -13,6 +13,7 @@ import pyaudio
 import wave
 import cv2
 import threading
+import json
 
 
 
@@ -168,18 +169,25 @@ def render_meeting_tab():
                     save_meeting_to_json(meeting_object)
                     st.success("Meeting data has been saved to meetings.json.")
 
-    # Real-time insights display
+ 
+
     st.subheader("Real-Time Insights:")
     insights_placeholder = st.empty()
+
     while True:  # Main loop for updating insights
         if not is_live_transcription and transcript_queue.empty():
-            break # Break out of the loop if not transcribing and queue is empty
+            break  # Break out of the loop if not transcribing and queue is empty
 
         while not transcript_queue.empty():
             transcript = transcript_queue.get()
             print("Transcript received in main file:", transcript)
-            st.session_state["live_insights"] += transcript + "\n"
 
+            if transcript:  # Ensure transcript is not None or empty
+                if isinstance(transcript, dict):
+                    # transcript = json.dumps(transcript, indent=2)  # Convert dict to a formatted string
+                    st.write(transcript)
+
+                st.session_state["live_insights"] = transcript 
         insights_placeholder.write(st.session_state["live_insights"])  # Update the placeholder
         time.sleep(3)  # Adjust update frequency as needed
 

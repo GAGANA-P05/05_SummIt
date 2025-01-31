@@ -31,31 +31,19 @@ def transcribe_audio(file_path):
         return None
 
 def get_realtime_insights(transcript_chunk):
+    """
+    Generates real-time insights, suggestions, and improvements based on a meeting transcript chunk.
+    Returns a natural language response (no JSON).
+    """
     prompt = (
-        f"Given the following meeting transcript chunk:\n\n{transcript_chunk}\n\n"
-        "Provide real-time insights and suggestions for the conversation.  "
-        "Focus on identifying key discussion points, potential issues, "
-        "and actionable suggestions for improvement.  "
-        "Respond in a concise and structured format, like this:\n\n"
-        "```json\n"
-        "{\n"
-        "  \"key_discussion_points\": [\n"
-        "    \"Mentioned the need for better client communication.\",\n"
-        "    \"Discussed the Q3 budget and potential cost overruns.\",\n"
-        "    \"Brainstormed new marketing strategies.\"\n"
-        "  ],\n"
-        "  \"potential_issues\": [\n"
-        "    \"Client communication has been inconsistent and needs improvement.\",\n"
-        "    \"Current spending trends indicate a possible budget deficit.\"\n"
-        "  ],\n"
-        "  \"suggestions\": [\n"
-        "    \"Implement a weekly client update email.\",\n"
-        "    \"Review the budget line items and identify areas for cost reduction.\",\n"
-        "    \"Schedule a follow-up meeting to further discuss the marketing strategies.\"\n"
-        "  ]\n"
-        "}\n"
-        "```\n"
-        "Respond *only* with the JSON object. No preamble or explanation."
+        f"Here is a recent chunk of the meeting transcript:\n\n{transcript_chunk}\n\n"
+        "Based on this, provide real-time insights wherever applicable by analyzing current trends. "
+        "If decisions are being made without awareness of market trends, suggest appropriate actions. "
+        "If the project plans discussed are not well-structured, suggest on-the-spot improvements. "
+        "Consider if the discussion relates to education (e.g., full-stack MERN development, app development), "
+        "business investments, healthcare, finance, time management, or similar fields. "
+        "Additionally, analyze any emerging trends in these areas based on the context. "
+        "Respond in a clear and concise natural language format, using headings, bullet points, or numbered lists."
     )
 
     try:
@@ -73,10 +61,12 @@ def get_realtime_insights(transcript_chunk):
         response = requests.post(CHATGROQ_API_URL_CHAT, json=payload, headers=headers)
 
         if response.status_code == 200:
-            try:  # Attempt to parse JSON response
-                return json.loads(response.json().get("choices", [{}])[0].get("message", {}).get("content", "{}"))
-            except json.JSONDecodeError:
-                st.error(f"Invalid JSON response from ChatGroq: {response.text}")
+            try:
+                # Extract the content from the API response
+                insights = response.json().get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+                return insights
+            except Exception as e:
+                st.error(f"Error parsing API response: {e}")
                 return None
         else:
             st.error(f"ChatGroq API Error: {response.status_code} - {response.text}")
