@@ -233,6 +233,46 @@
             "Xavier to present a progress update on real-time capabilities by Feb 15."
         ]
     },
+    {
+        "meeting_id": "M007",
+        "title": "AI Product Strategy Meeting",
+        "participants": [
+            "Alice Johnson",
+            "Bob Richardson",
+            "Charlie Kim",
+            "Diana Lopez"
+        ],
+        "date": "2025-01-30",
+        "duration": "1h 45m",
+        "agenda": [
+            "Discussing AI product roadmap for Q2",
+            "Identifying key market trends",
+            "Defining feature priorities"
+        ],
+        "transcript": [
+            {
+                "timestamp": "00:12:30",
+                "speaker": "Alice Johnson",
+                "text": "We need to focus on enhancing our AI’s personalization features to stay competitive."
+            },
+            {
+                "timestamp": "00:35:20",
+                "speaker": "Bob Richardson",
+                "text": "Market trends indicate a growing demand for AI-driven automation in customer support."
+            },
+            {
+                "timestamp": "01:10:50",
+                "speaker": "Charlie Kim",
+                "text": "Let's prioritize NLP improvements for better chatbot interactions."
+            }
+        ],
+        "action_items": [
+            "Alice to finalize the AI roadmap proposal by Feb 10.",
+            "Bob to compile a market trends report by Feb 8.",
+            "Charlie to draft a feature prioritization document by Feb 12."
+        ]
+    },
     
+
     "{\n  \"meeting_id\": \"M001\",\n  \"title\": \"Global Warming Causes and Consequences\",\n  \"participants\": [\"Dr. Nalaji\", \"Gaurav\"],\n  \"date\": \"\",\n  \"duration\": \"\",\n  \"agenda\": [],\n  \"transcript\": [\n    {\n      \"timestamp\": \"\",\n      \"speaker\": \"Dr. Nalaji\",\n      \"text\": \"Hi, this is Dr. Nalaji and I am here to discuss about global warming causes and consequences.\"\n    },\n    {\n      \"timestamp\": \"\",\n      \"speaker\": \"Gaurav\",\n      \"text\": \"Hi, I am Gaurav and I am going to speak about volcano eruption. Actually, a volcano eruption is causing from the middle of the earth to the middle of the earth.\"\n    },\n    {\n      \"timestamp\": \"\",\n      \"speaker\": \"Gaurav\",\n      \"text\": \"So, be careful for taking out all the details and other things from the middle of the direction. So, that's all about the walking reduction.\"\n    },\n    {\n      \"timestamp\": \"\",\n      \"speaker\": \"Gaurav\",\n      \"text\": \"The follow-up meeting will be followed by Jayakirtha. Thank you.\"\n    }\n  ],\n  \"action_items\": []\n}"
 ]

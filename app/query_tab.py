@@ -14,16 +14,23 @@ load_dotenv()
 
 
 class DataHandler:
-    def __init__(self, file_path):
-        self.file_path = file_path
-        self.embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')  # Lightweight model
-        self.chroma_client = chromadb.PersistentClient(path="chroma_db")  # Persistent ChromaDB
-        self.collection = self.chroma_client.get_or_create_collection(name="meeting_data")
-        self.llm_helper = LLMHelper()  # Initialize LLMHelper for real LLM responses
+   def __init__(self, file_path):
+    self.file_path = file_path
+    self.embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    self.chroma_client = chromadb.PersistentClient(path="chroma_db")
+    self.collection = self.chroma_client.get_or_create_collection(name="meeting_data")
+    self.llm_helper = LLMHelper()
 
-        # Only initialize embeddings if the database is empty
-        if self.collection.count() == 0:
-            self._initialize_vector_store()
+    # Load existing meeting data from the file
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            meetings_data = json.load(f)
+    except FileNotFoundError:
+        meetings_data = []
+
+    # Initialize embeddings only if there's new data in the file 
+    if len(meetings_data) > self.collection.count():
+        self._initialize_vector_store()
 
     def _initialize_vector_store(self):
         """Load meeting data and store embeddings in ChromaDB (only runs once)."""
