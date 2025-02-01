@@ -21,6 +21,12 @@ is_recording = False
 is_live_transcription = False
 transcript_queue = queue.Queue()
 
+import cv2
+
+
+
+
+
 
 
 def record_audio_and_video(file_path_audio, file_path_video):
@@ -33,7 +39,6 @@ def record_audio_and_video(file_path_audio, file_path_video):
     rate = 44100
     chunk = 1024
     audio_stream = p.open(format=audio_format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
-    
 
     # Initialize video
     cap = cv2.VideoCapture(0)  # 0 for default camera
@@ -54,6 +59,7 @@ def record_audio_and_video(file_path_audio, file_path_video):
             ret, frame = cap.read()
             if ret:
                 video_writer.write(frame)
+                
 
             # Capture audio data
             audio_data = audio_stream.read(chunk)
@@ -133,11 +139,15 @@ def render_meeting_tab():
     file_path_video = "meeting_video.avi"
 
     # Start and stop recording buttons
-    if st.button("Start Recording"):
+    if st.button("Start meeting"):
         start_recording_and_transcription(file_path_audio, file_path_video)
+       
 
-    if st.button("Stop Recording"):
+    if st.button("Stop meeting"):
         stop_recording_and_transcription()
+         # This will stop the video feed
+         # Wait for the video thread to finish
+
 
     if os.path.exists(file_path_audio) and os.path.exists(file_path_video):
         st.subheader("Download Recorded Files:")
@@ -192,5 +202,5 @@ def render_meeting_tab():
         insights_placeholder.write(st.session_state["live_insights"])  # Update the placeholder
         time.sleep(3)  # Adjust update frequency as needed
 
-if __name__ == "__main__":
+if __name__ == "_main_":
     render_meeting_tab()

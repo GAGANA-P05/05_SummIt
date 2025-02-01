@@ -36,15 +36,15 @@ def get_realtime_insights(transcript_chunk):
     Returns a natural language response (no JSON).
     """
     prompt = (
-        f"Here is a recent chunk of the meeting transcript:\n\n{transcript_chunk}\n\n"
-        "Based on this, provide real-time insights wherever applicable by analyzing current trends. "
-        "If decisions are being made without awareness of market trends, suggest appropriate actions. "
-        "If the project plans discussed are not well-structured, suggest on-the-spot improvements. "
-        "Consider if the discussion relates to education (e.g., full-stack MERN development, app development), "
-        "business investments, healthcare, finance, time management, or similar fields. "
-        "Additionally, analyze any emerging trends in these areas based on the context. "
-        "Respond in a clear and concise natural language format, using headings, bullet points, or numbered lists."
+        f"Here is a recent chunk of the meeting transcript:transcript starts here : \n\n{transcript_chunk}\n\n"
+        "transcript ends here"
+      
+        "If the given data  really needs some corrections or suggestions please provide it as soon as possible by analysing current trend within three points"
+        "i am going to display your response in on going meeting , so think wisely and respond , if there you really required your response then only respond"
+        "if you are not sure about the response then you can skip this question"
     )
+    
+    
 
     try:
         headers = {
