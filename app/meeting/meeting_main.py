@@ -33,6 +33,7 @@ def record_audio_and_video(file_path_audio, file_path_video):
     rate = 44100
     chunk = 1024
     audio_stream = p.open(format=audio_format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
+    
 
     # Initialize video
     cap = cv2.VideoCapture(0)  # 0 for default camera
