@@ -5,7 +5,10 @@ from meeting.meeting_save import generate_meeting_object, save_meeting_to_json
 import os
 import time
 import queue
-
+import cv2
+import streamlit as st
+import numpy as np
+import tempfile
 
 
 
@@ -20,8 +23,63 @@ import json
 is_recording = False
 is_live_transcription = False
 transcript_queue = queue.Queue()
+stop_button_pressed=False
 
 import cv2
+
+
+
+
+import streamlit as st
+import subprocess
+import os
+
+import os
+import subprocess
+import streamlit as st
+
+
+import os
+import subprocess
+import webbrowser
+import time
+
+def run_main_py():
+    # Define the path to your main.py file
+    print("run_main_py")
+    main_py_path = "video-meeting-zego/main.py"
+    
+    # Check if the file exists
+    if not os.path.exists(main_py_path):
+        print("The specified main.py file does not exist.")
+        return
+    
+    try:
+        # Use subprocess.Popen to run main.py in a non-blocking way
+        process = subprocess.Popen(["python", main_py_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+        # Wait a few seconds to ensure the server starts before opening the browser
+        time.sleep(3)  # Adjust this delay based on how long main.py takes to start
+
+        # Open localhost:5000 in the default browser
+        webbrowser.open("http://localhost:5000")
+
+        # Read the output line by line (so it doesn’t get stuck)
+        print("### Output from main.py")
+        for line in iter(process.stdout.readline, ''):
+            print(line.strip())
+
+        # Wait for the process to finish
+        process.wait()
+
+        # Check for errors
+        stderr_output = process.stderr.read().strip()
+        if stderr_output:
+            print("### Error from main.py")
+            print(stderr_output)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 
 
@@ -45,6 +103,7 @@ def record_audio_and_video(file_path_audio, file_path_video):
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
+    frame_placeholder = st.empty()
     video_writer = cv2.VideoWriter(file_path_video, fourcc, 20.0, (frame_width, frame_height))
 
     st.write("Recording started...")
@@ -62,9 +121,13 @@ def record_audio_and_video(file_path_audio, file_path_video):
                 
 
             # Capture audio data
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame_placeholder.image(frame, channels="RGB")
             audio_data = audio_stream.read(chunk)
             audio_frames.append(audio_data)
             transcription_frames.append(audio_data)
+            if cv2.waitKey(1) & 0xFF == ord("q") or stop_button_pressed: 
+                break
 
             # Periodically send audio chunks for transcription
             if time.time() - start_time >= 13:  # Every 3 seconds
@@ -86,6 +149,9 @@ def record_audio_and_video(file_path_audio, file_path_video):
 
                 transcription_frames = []
                 start_time = time.time()
+        
+        cap.release()
+        cv2.destroyAllWindows()
 
     finally:
         # Stop and release resources
@@ -140,11 +206,14 @@ def render_meeting_tab():
 
     # Start and stop recording buttons
     if st.button("Start meeting"):
+        
         start_recording_and_transcription(file_path_audio, file_path_video)
+        
        
 
     if st.button("Stop meeting"):
         stop_recording_and_transcription()
+        stop_button_pressed=True
          # This will stop the video feed
          # Wait for the video thread to finish
 
