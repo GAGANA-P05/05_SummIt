@@ -213,7 +213,7 @@ def render_meeting_tab():
 
     if st.button("Stop meeting"):
         stop_recording_and_transcription()
-        stop_button_pressed=True
+        # stop_button_pressed=True
          # This will stop the video feed
          # Wait for the video thread to finish
 
